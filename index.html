@@ -279,8 +279,15 @@
 <!-- ══ GALLERY ═══════════════════════════════════════════════════════ -->
 <section class="gallery" id="gallery" aria-labelledby="gallery-h">
   <div class="gallery__head" data-rv>
-    <h2 id="gallery-h">The <em>gallery</em></h2>
-    <p class="label">Our work · our space · video reels</p>
+    <div>
+      <h2 id="gallery-h">The <em>gallery</em></h2>
+      <p class="label">Our work · our space · video reels</p>
+    </div>
+    <div class="gallery__filter-tabs" role="tablist" aria-label="Gallery category filters">
+      <button class="g-tab is-active" type="button" data-filter="all">All</button>
+      <button class="g-tab" type="button" data-filter="photos">Photos</button>
+      <button class="g-tab" type="button" data-filter="videos">Videos &amp; Reels</button>
+    </div>
   </div>
 
   <div class="gallery__grid">

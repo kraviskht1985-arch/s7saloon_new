@@ -1005,8 +1005,9 @@
     renderPricing();
   })();
 
-  /* ── Gallery Lightbox & Media Controller ─────────────────────────── */
+  /* ── Gallery Filter Tabs & Lightbox Controller ────────────────────── */
   (function () {
+    var filterTabs   = $$('.g-tab');
     var galleryItems = $$('.gallery .g');
     var lightbox     = $('#lightbox');
     var overlay      = $('#lightbox-overlay');
@@ -1019,7 +1020,27 @@
     var countEl      = $('#lightbox-count');
     var instaBtn     = $('#lightbox-insta-link');
 
-    // Lightbox Modal (Photos & Videos)
+    // 1. Gallery Tab Filtering (All / Photos / Videos & Reels)
+    if (filterTabs.length && galleryItems.length) {
+      filterTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          filterTabs.forEach(function (t) { t.classList.remove('is-active'); });
+          tab.classList.add('is-active');
+
+          var filter = tab.getAttribute('data-filter');
+          galleryItems.forEach(function (item) {
+            var itemType = item.getAttribute('data-type');
+            if (filter === 'all' || itemType === filter) {
+              item.classList.remove('is-hidden');
+            } else {
+              item.classList.add('is-hidden');
+            }
+          });
+        });
+      });
+    }
+
+    // 2. Lightbox Modal (Photos & Videos)
     if (!lightbox || !imgEl) return;
     if (!galleryItems.length) return;
 
