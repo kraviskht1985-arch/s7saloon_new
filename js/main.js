@@ -1020,13 +1020,17 @@
     var countEl      = $('#lightbox-count');
     var instaBtn     = $('#lightbox-insta-link');
 
-    // 1. Gallery Tab Filtering (Photos / Videos & Reels)
+    // 1. Gallery Tab Filtering (All / Photos / Videos & Reels)
     if (filterTabs.length && galleryItems.length) {
       function applyFilter(filter) {
         galleryItems.forEach(function (item) {
           var itemType = item.getAttribute('data-type');
           if (filter === 'all' || itemType === filter) {
             item.classList.remove('is-hidden');
+            item.classList.add('is-revealed');
+            $$('[data-rv]', item).forEach(function (child) {
+              child.classList.add('is-revealed');
+            });
           } else {
             item.classList.add('is-hidden');
           }
@@ -1034,14 +1038,15 @@
       }
 
       filterTabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
+        tab.addEventListener('click', function (e) {
+          e.preventDefault();
           filterTabs.forEach(function (t) { t.classList.remove('is-active'); });
           tab.classList.add('is-active');
           applyFilter(tab.getAttribute('data-filter'));
         });
       });
 
-      // Initialize with active tab
+      // Initialize active tab
       var activeTab = $('.g-tab.is-active');
       if (activeTab) {
         applyFilter(activeTab.getAttribute('data-filter'));
@@ -1049,36 +1054,41 @@
     }
 
     // 2. Lightbox Modal (Photos & Videos)
-    if (!lightbox || !imgEl) return;
-    if (!galleryItems.length) return;
+    if (!lightbox || !imgEl || !galleryItems.length) return;
 
-    var mediaList = [];
-    galleryItems.forEach(function (item) {
-      var slot     = $('.img-slot', item);
-      var img      = $('img', item);
-      var videoUrl = item.getAttribute('data-video-url');
-      var instaUrl = item.getAttribute('data-insta-url') || 'https://www.instagram.com/studieo7hopes/';
-
-      if (slot) {
-        mediaList.push({
-          element: item,
-          isVideo: !!videoUrl,
-          videoUrl: videoUrl || '',
-          instaUrl: instaUrl,
-          src: img ? img.getAttribute('src') : '',
-          alt: img ? img.getAttribute('alt') : '',
-          label: slot.getAttribute('data-label') || 'Salon Feature'
-        });
-      }
-    });
-
+    var activeMediaList = [];
     var currentIdx = 0;
 
-    function updateLightbox(idx) {
-      currentIdx = (idx + mediaList.length) % mediaList.length;
-      var item = mediaList[currentIdx];
+    function buildVisibleMediaList() {
+      activeMediaList = [];
+      galleryItems.forEach(function (item) {
+        if (item.classList.contains('is-hidden')) return;
+        var slot     = $('.img-slot', item);
+        var img      = $('img', item);
+        var videoUrl = item.getAttribute('data-video-url');
+        var instaUrl = item.getAttribute('data-insta-url') || 'https://www.instagram.com/studieo7hopes/';
 
-      // Reset media elements
+        if (slot) {
+          activeMediaList.push({
+            element: item,
+            isVideo: !!videoUrl,
+            videoUrl: videoUrl || '',
+            instaUrl: instaUrl,
+            src: img ? img.getAttribute('src') : '',
+            alt: img ? img.getAttribute('alt') : '',
+            label: slot.getAttribute('data-label') || 'Salon Feature'
+          });
+        }
+      });
+    }
+
+    function updateLightbox(idx) {
+      if (!activeMediaList.length) buildVisibleMediaList();
+      if (!activeMediaList.length) return;
+
+      currentIdx = (idx + activeMediaList.length) % activeMediaList.length;
+      var item = activeMediaList[currentIdx];
+
       imgEl.style.display = 'none';
       if (videoEl) {
         videoEl.pause();
@@ -1096,11 +1106,17 @@
       }
 
       if (titleEl)  titleEl.textContent = item.label;
-      if (countEl)  countEl.textContent = (item.isVideo ? 'Reel ' : 'Photo ') + (currentIdx + 1) + ' of ' + mediaList.length;
+      if (countEl)  countEl.textContent = (item.isVideo ? 'Reel ' : 'Photo ') + (currentIdx + 1) + ' of ' + activeMediaList.length;
       if (instaBtn) instaBtn.href = item.instaUrl;
     }
 
-    function openLightbox(idx) {
+    function openLightboxForItem(targetItem) {
+      buildVisibleMediaList();
+      var foundIdx = 0;
+      activeMediaList.forEach(function (m, i) {
+        if (m.element === targetItem) foundIdx = i;
+      });
+
       lightbox.removeAttribute('hidden');
       document.body.style.overflow = 'hidden';
       updateLightbox(idx);
