@@ -1020,24 +1020,32 @@
     var countEl      = $('#lightbox-count');
     var instaBtn     = $('#lightbox-insta-link');
 
-    // 1. Gallery Tab Filtering (All / Photos / Videos & Reels)
+    // 1. Gallery Tab Filtering (Photos / Videos & Reels)
     if (filterTabs.length && galleryItems.length) {
+      function applyFilter(filter) {
+        galleryItems.forEach(function (item) {
+          var itemType = item.getAttribute('data-type');
+          if (filter === 'all' || itemType === filter) {
+            item.classList.remove('is-hidden');
+          } else {
+            item.classList.add('is-hidden');
+          }
+        });
+      }
+
       filterTabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
           filterTabs.forEach(function (t) { t.classList.remove('is-active'); });
           tab.classList.add('is-active');
-
-          var filter = tab.getAttribute('data-filter');
-          galleryItems.forEach(function (item) {
-            var itemType = item.getAttribute('data-type');
-            if (filter === 'all' || itemType === filter) {
-              item.classList.remove('is-hidden');
-            } else {
-              item.classList.add('is-hidden');
-            }
-          });
+          applyFilter(tab.getAttribute('data-filter'));
         });
       });
+
+      // Initialize with active tab
+      var activeTab = $('.g-tab.is-active');
+      if (activeTab) {
+        applyFilter(activeTab.getAttribute('data-filter'));
+      }
     }
 
     // 2. Lightbox Modal (Photos & Videos)
