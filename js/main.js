@@ -1039,6 +1039,8 @@
       });
     }
 
+    var instaBtn     = $('#lightbox-insta-link');
+
     // 2. Lightbox Modal (Photos & Videos)
     if (!lightbox || !imgEl) return;
     if (!galleryItems.length) return;
@@ -1048,12 +1050,14 @@
       var slot     = $('.img-slot', item);
       var img      = $('img', item);
       var videoUrl = item.getAttribute('data-video-url');
+      var instaUrl = item.getAttribute('data-insta-url') || 'https://www.instagram.com/studieo7hopes/';
 
       if (slot) {
         mediaList.push({
           element: item,
           isVideo: !!videoUrl,
           videoUrl: videoUrl || '',
+          instaUrl: instaUrl,
           src: img ? img.getAttribute('src') : '',
           alt: img ? img.getAttribute('alt') : '',
           label: slot.getAttribute('data-label') || 'Salon Feature'
@@ -1084,8 +1088,9 @@
         imgEl.style.display = 'block';
       }
 
-      if (titleEl) titleEl.textContent = item.label;
-      if (countEl) countEl.textContent = (item.isVideo ? 'Reel ' : 'Photo ') + (currentIdx + 1) + ' of ' + mediaList.length;
+      if (titleEl)  titleEl.textContent = item.label;
+      if (countEl)  countEl.textContent = (item.isVideo ? 'Reel ' : 'Photo ') + (currentIdx + 1) + ' of ' + mediaList.length;
+      if (instaBtn) instaBtn.href = item.instaUrl;
     }
 
     function openLightbox(idx) {
